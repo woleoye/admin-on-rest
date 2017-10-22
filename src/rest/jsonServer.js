@@ -94,6 +94,10 @@ export default (apiUrl, httpClient = fetchJson) => {
         const { headers, json } = response;
         switch (type) {
             case GET_LIST:
+                return {
+                    data: json.map(resource => { ...resource, id: resource._id } ),
+                    total: parseInt(headers.get('content-range').split('/').pop(), 10),
+                };
             case GET_MANY_REFERENCE:
                 if (!headers.has('x-total-count')) {
                     throw new Error(
@@ -111,9 +115,9 @@ export default (apiUrl, httpClient = fetchJson) => {
                     ),
                 };
             case CREATE:
-                return { data: { ...params.data, id: json.id } };
+                return { data: { ...params.data, id: json._id } };
             default:
-                return { data: json };
+                return json.map(resource => { ...resource, id: resource._id } );
         }
     };
 
